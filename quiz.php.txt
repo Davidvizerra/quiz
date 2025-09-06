@@ -1,0 +1,79 @@
+<?php
+session_start();
+
+echo '<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body">';
+
+$perguntas = [
+    // ... array de perguntas ...
+    [
+        "enunciado" => "Qual a capital da França?",
+        "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
+        "gabarito" => "C"
+    ],
+    [
+        "enunciado" => "Qual a capital da Alemanha?",
+        "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
+        "gabarito" => "A"
+    ],
+    [
+        "enunciado" => "Qual a capital da Itália?",
+        "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
+        "gabarito" => "D"
+    ],
+    [
+        "enunciado" => "Qual a capital da Espanha?",
+        "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
+        "gabarito" => "B"
+    ],
+    [
+        "enunciado" => "Qual a capital do Brasil?",
+        "opcoes" => array("A) Brasília", "B) Rio de Janeiro", "C) São Paulo", "D) Salvador"),
+        "gabarito" => "A"
+    ]
+];
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nome']) && isset($_POST['email']) && !isset ($_POST['pergunta0'])) { // Verifica se o formulário foi enviado
+    $_SESSION['nome'] = $_POST['nome'];
+    $_SESSION['email'] = $_POST['email'];
+    $nome = htmlspecialchars($_SESSION['nome']);
+    echo "<h2>Bem-vindo, $nome!</h2>";
+    echo '<form method="post">';
+    foreach ($perguntas as $i => $pergunta) {
+        echo "<p>" . ($i+1) . ". " . $pergunta["enunciado"] . "</p>";
+        foreach ($pergunta["opcoes"] as $letra => $opcao) {
+            $valor = chr(65 + $letra);
+            echo "<label>";
+            echo "<input type='radio' name='pergunta$i' value='$valor' required> $opcao";
+            echo "</label><br>";
+        }
+    }
+    echo '<br><input type="submit" value="Enviar Quiz">';
+    echo '</form>';
+}
+elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['nome']) && isset($_POST['pergunta0'])) {
+    $acertos = 0;
+    foreach ($perguntas as $i => $pergunta) {
+        $resposta = $_POST["pergunta$i"] ?? '';
+        if ($resposta == $pergunta["gabarito"]) {
+            $acertos++;
+        }
+    }
+    $nome = htmlspecialchars($_SESSION['nome']);
+    echo "<h2>Resultado do Quiz</h2>";
+    echo "$nome, você acertou $acertos de " . count($perguntas) . " perguntas.<br>";
+    echo '<a href="quiz.html">Tentar novamente</a>';
+    session_destroy();
+} else {
+    header("Location: quiz.html");
+    exit;
+}
+
+echo '</body></html>';
+?>

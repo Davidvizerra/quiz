@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro</title>
+</head>
+<style>
+    body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f6fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.cadastro-container {
+    background: #fff;
+    padding: 40px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(44, 62, 80, 0.10);
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+}
+
+.cadastro-container h2 {
+    color: #2a7ae2;
+    margin-bottom: 24px;
+}
+
+.cadastro-container input[type="text"],
+.cadastro-container input[type="email"] {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0 18px 0;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.cadastro-container input[type="submit"] {
+    background: #2a7ae2;
+    color: #fff;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.cadastro-container input[type="submit"]:hover {
+    background: #185bb5;
+}
+</style>
+<body>
+    <div class="cadastro-container">
+        <h2>Cadastro</h2>
+        <form action="quiz.php" method="post">
+            Nome: <input type="text" name="nome" required><br><br>
+            E-mail: <input type="email" name="email" required><br><br>
+            <input type="submit" value="Iniciar Quiz">
+        </form>
+    </div>
+</body>
+</html>
