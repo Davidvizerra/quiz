@@ -1,26 +1,11 @@
 <?php
 session_start();
 
-echo '<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Quiz</title>
-    <link rel="stylesheet" href="estilo.css">
-</head>
-<body">';
-
 $perguntas = [
-    // ... array de perguntas ...
     [
         "enunciado" => "Qual a capital da França?",
         "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
         "gabarito" => "C"
-    ],
-    [
-        "enunciado" => "Qual a capital da Alemanha?",
-        "opcoes" => array("A) Berlim", "B) Madrid", "C) Paris", "D) Roma"),
-        "gabarito" => "A"
     ],
     [
         "enunciado" => "Qual a capital da Itália?",
@@ -39,40 +24,69 @@ $perguntas = [
     ]
 ];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nome']) && isset($_POST['email']) && !isset ($_POST['pergunta0'])) { // Verifica se o formulário foi enviado
-    $_SESSION['nome'] = $_POST['nome'];
-    $_SESSION['email'] = $_POST['email'];
+echo '<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>';
+
+if (!isset($_SESSION['pergunta_atual'])) {
+    $_SESSION['pergunta_atual'] = 0;
+    $_SESSION['acertos'] = 0;
+    $_SESSION['respostas'] = [];
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Primeira vez: salva nome/email
+    if (isset($_POST['nome']) && isset($_POST['email'])) {
+        $_SESSION['nome'] = $_POST['nome'];
+        $_SESSION['email'] = $_POST['email'];
+    } else if (isset($_POST['resposta'])) {
+        // Salva resposta anterior
+        $idx = $_SESSION['pergunta_atual'];
+        $_SESSION['respostas'][$idx] = $_POST['resposta'];
+        if ($_POST['resposta'] == $perguntas[$idx]["gabarito"]) {
+            $_SESSION['acertos']++;
+        }
+        $_SESSION['pergunta_atual']++;
+    }
+}
+
+// Se não tem nome/email, pede cadastro
+if (!isset($_SESSION['nome']) || !isset($_SESSION['email'])) {
+    echo '<h2>Bem-vindo ao Quiz!</h2>
+    <form method="post">
+        <label>Nome: <input type="text" name="nome" required></label><br>
+        <label>Email: <input type="email" name="email" required></label><br>
+        <input type="submit" value="Iniciar Quiz">
+    </form>';
+} else if ($_SESSION['pergunta_atual'] < count($perguntas)) {
+    // Mostra a pergunta atual
+    $i = $_SESSION['pergunta_atual'];
+    $pergunta = $perguntas[$i];
     $nome = htmlspecialchars($_SESSION['nome']);
     echo "<h2>Bem-vindo, $nome!</h2>";
-    echo '<form method="post">';
-    foreach ($perguntas as $i => $pergunta) {
-        echo "<p>" . ($i+1) . ". " . $pergunta["enunciado"] . "</p>";
-        foreach ($pergunta["opcoes"] as $letra => $opcao) {
-            $valor = chr(65 + $letra);
-            echo "<label>";
-            echo "<input type='radio' name='pergunta$i' value='$valor' required> $opcao";
-            echo "</label><br>";
-        }
+    echo "<form method='post'>";
+    echo "<p>" . ($i+1) . ". " . $pergunta["enunciado"] . "</p>";
+    foreach ($pergunta["opcoes"] as $letra => $opcao) {
+        $valor = chr(65 + $letra);
+        echo "<label>";
+        echo "<input type='radio' name='resposta' value='$valor' required> $opcao";
+        echo "</label><br>";
     }
-    echo '<br><input type="submit" value="Enviar Quiz">';
-    echo '</form>';
-}
-elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_SESSION['nome']) && isset($_POST['pergunta0'])) {
-    $acertos = 0;
-    foreach ($perguntas as $i => $pergunta) {
-        $resposta = $_POST["pergunta$i"] ?? '';
-        if ($resposta == $pergunta["gabarito"]) {
-            $acertos++;
-        }
-    }
+    echo '<br><input type="submit" value="Próxima">';
+    echo "</form>";
+} else {
+    // Mostra resultado
     $nome = htmlspecialchars($_SESSION['nome']);
+    $acertos = $_SESSION['acertos'];
     echo "<h2>Resultado do Quiz</h2>";
     echo "$nome, você acertou $acertos de " . count($perguntas) . " perguntas.<br>";
     echo '<a href="quiz.html">Tentar novamente</a>';
     session_destroy();
-} else {
-    header("Location: quiz.html");
-    exit;
 }
 
 echo '</body></html>';
